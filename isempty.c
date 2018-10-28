@@ -9,6 +9,11 @@ This file is part of isempty, see COPYING
 
 #include "isempty.h"
 
+void print_usage(const char *path)
+{
+    fprintf(stderr, "Usage: %s [-b 0] FILE_NAME\n", path);
+}
+
 int main(const int argc, char * const argv[])
 {
     int flags, opt;
@@ -21,7 +26,7 @@ int main(const int argc, char * const argv[])
             byte = (unsigned char) atoi(optarg);
             break;
         default:
-            fprintf(stderr, "Usage: %s [-b 0] FILE_NAME\n", argv[0]);
+            print_usage(argv[0]);
             exit(ERROR_OPTIONS);
         }
     }
@@ -29,7 +34,7 @@ int main(const int argc, char * const argv[])
     printf("byte = %hhi\n", byte);
 
     if (optind >= argc) {
-        fprintf(stderr, "File name required\n");
+        print_usage(argv[0]);
         exit(ERROR_OPTIONS);
     }
 
