@@ -5,4 +5,4 @@ project(isempty C)
 
 add_executable(isempty isempty.c)
 
-install(TARGETS isempty)
+install(TARGETS isempty DESTINATION bin)
