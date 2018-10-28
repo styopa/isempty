@@ -6,6 +6,8 @@ This file is part of isempty, see COPYING
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
+#include <string.h>
 
 #include "isempty.h"
 
@@ -14,11 +16,23 @@ void print_usage(const char *path)
     fprintf(stderr, "Usage: %s [-b 0] FILE_NAME\n", path);
 }
 
+int is_empty(const unsigned char byte, const char *path)
+{
+    FILE *file;
+
+    file = fopen(path, "r");
+    if (file == NULL) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        return RESULT_IO_ERROR;
+    }
+
+    fclose(file);
+}
+
 int main(const int argc, char * const argv[])
 {
-    int flags, opt;
+    int opt, result;
     unsigned char byte = 0;
-    const char *file_name;
 
     while ((opt = getopt(argc, argv, "b:")) != -1) {
         switch (opt) {
@@ -27,17 +41,15 @@ int main(const int argc, char * const argv[])
             break;
         default:
             print_usage(argv[0]);
-            exit(ERROR_OPTIONS);
+            exit(RESULT_BAD_OPTIONS);
         }
     }
 
-    printf("byte = %hhi\n", byte);
-
     if (optind >= argc) {
         print_usage(argv[0]);
-        exit(ERROR_OPTIONS);
+        exit(RESULT_BAD_OPTIONS);
+    } else {
+        result = is_empty(byte, argv[optind]);
+        exit(result);
     }
-
-    file_name = argv[optind];
-    printf("File name: %s\n", file_name);
 }

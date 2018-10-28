@@ -6,6 +6,9 @@ This file is part of isempty, see COPYING
 #ifndef _ISEMPTY_H
 #define _ISEMPTY_H
 
-#define ERROR_OPTIONS 2
+#define RESULT_EMPTY 0
+#define RESULT_NOT_EMPTY 1
+#define RESULT_BAD_OPTIONS 2
+#define RESULT_IO_ERROR 3
 
 #endif // _ISEMPTY_H
