@@ -13,7 +13,12 @@ This file is part of isempty, see COPYING
 
 void print_usage(const char *path)
 {
-    fprintf(stderr, "Usage: %s [-b 0] FILE_NAME\n", path);
+    int buf_size = sysconf(_SC_PAGESIZE);
+    fprintf(stderr, "Usage: %s [-b 0] [-s %li] FILE_NAME\n", path, buf_size);
+}
+
+int *get_offsets(const char *path, const int buf_size, int *count)
+{
 }
 
 int is_empty(const unsigned char byte, const char *path)
@@ -33,11 +38,15 @@ int main(const int argc, char * const argv[])
 {
     int opt, result;
     unsigned char byte = 0;
+    int buf_size = sysconf(_SC_PAGESIZE);
 
     while ((opt = getopt(argc, argv, "b:")) != -1) {
         switch (opt) {
         case 'b':
             byte = (unsigned char) atoi(optarg);
+            break;
+        case 's':
+            buf_size = (int) atoi(optarg);
             break;
         default:
             print_usage(argv[0]);
