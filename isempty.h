@@ -10,6 +10,7 @@ This file is part of isempty, see COPYING
 #define RESULT_NOT_EMPTY 1
 #define RESULT_BAD_OPTIONS 2
 #define RESULT_IO_ERROR 3
+#define RESULT_OOM 4
 
 #define div_ceil(x, y) (x / y + (x % y ? 1 : 0))
 

@@ -8,6 +8,8 @@ This file is part of isempty, see COPYING
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "isempty.h"
 
@@ -30,20 +32,66 @@ int get_chunk_size(off_t file_size, int buf_size, int percent, int *n_chunks)
     return div_ceil(file_size, *n_chunks);
 }
 
-int is_empty(const unsigned char byte, const char *path)
+int is_empty(const char *path, unsigned char byte, int percent, int buf_size)
 {
     FILE *file;
+    unsigned char *buffer;
+    struct stat stat_buf;
+    int n_chunks, result;
+    size_t bytes_read;
 
-    file = fopen(path, "r");
-    if (file == NULL) {
-        fprintf(stderr, "%s\n", strerror(errno));
-        return RESULT_IO_ERROR;
+    if ( !(file = fopen(path, "r")) ) {
+        result = RESULT_IO_ERROR;
+        goto fail;
     }
 
-    fclose(file);
+    if (fstat(fd, &stat_buf)) {
+        result = RESULT_IO_ERROR;
+        goto fail;
+    }
+
+    chunk_size = get_chunk_size(stat_buf.st_size, buf_size, percent, &n_chunks);
+    buffer = (unsigned char *) malloc(buf_size);
+    if (!buffer) {
+        result = RESULT_OOM;
+        goto fail;
+    }
+
+    for (int i = 0; i < n_chunks; i++) {
+        if (fseek(file, i * chunk_size, SEEK_SET)) {
+            result = RESULT_IO_ERROR;
+            goto fail;
+        }
+
+        bytes_read = fread(buffer, 1, buf_size, file);
+        if (ferror(file)) {
+            result = RESULT_IO_ERROR;
+            goto fail;
+        }
+
+        for (unsigned char *j = buffer; j < bytes_to_read; j++) {
+            if (j != byte) {
+                result = RESULT_NOT_EMPTY;
+                goto end;
+            }
+        }
+    }
+
+    result = RESULT_EMPTY;
+    goto end;
+
+fail:
+    fprintf(stderr, "%s\n", strerror(errno));
+
+end:
+    if (file) {
+        fclose(file);
+    }
+
+    return(result);
 }
 
-int main(const int argc, char * const argv[])
+int main(int argc, char * const argv[])
 {
     int opt, result;
     unsigned char byte = 0;
