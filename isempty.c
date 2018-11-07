@@ -17,8 +17,17 @@ void print_usage(const char *path)
     fprintf(stderr, "Usage: %s [-b 0] [-s %li] FILE_NAME\n", path, buf_size);
 }
 
-int *get_offsets(const char *path, const int buf_size, int *count)
+int get_chunk_size(off_t file_size, int buf_size, int percent, int *n_chunks)
 {
+    int bytes_to_read;
+
+    bytes_to_read = file_size * percent / 100;
+    if (!bytes_to_read) {
+        bytes_to_read = file_size;
+    }
+    *n_chunks = div_ceil(bytes_to_read, buf_size);
+
+    return div_ceil(file_size, *n_chunks);
 }
 
 int is_empty(const unsigned char byte, const char *path)

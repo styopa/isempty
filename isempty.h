@@ -11,4 +11,6 @@ This file is part of isempty, see COPYING
 #define RESULT_BAD_OPTIONS 2
 #define RESULT_IO_ERROR 3
 
+#define div_ceil(x, y) (x / y + (x % y ? 1 : 0))
+
 #endif // _ISEMPTY_H
